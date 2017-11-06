@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
@@ -22,9 +23,7 @@ import com.nicely.learningview.util.TDevice;
  *  @描述：
  */
 
-public class SpiderView
-        extends View
-{
+public class SpiderView extends View {
 
     private static final int count = 6;
     private Context mContext;
@@ -38,7 +37,7 @@ public class SpiderView
     private Paint mainPaint;                //雷达区画笔
     private Paint valuePaint;               //数据区画笔
     private Paint mPointPaint;
-    private Paint textPaint;                //文本画笔
+    private Paint mTxtPaint;                //文本画笔
     private Path  mLPath;
     private Path  mLinePath;
 
@@ -71,6 +70,11 @@ public class SpiderView
          mPointPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
          mPointPaint.setColor(Color.BLUE);
          mPointPaint.setStyle(Paint.Style.FILL);
+
+         mTxtPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+         Rect rect = new Rect();
+         mTxtPaint.getTextBounds("1" , 0 ,"1".length() , rect);
+
     }
 
     @Override
