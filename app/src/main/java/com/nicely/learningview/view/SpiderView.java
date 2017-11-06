@@ -9,9 +9,12 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.nicely.learningview.util.TDevice;
+
+
 
 /*
- *  @项目名：  Demo 
+ *  @项目名：  Demo
  *  @包名：    com.eebbk.nicely.demo.view
  *  @文件名:   SpiderView
  *  @创建者:   Administrator
@@ -19,21 +22,25 @@ import android.view.View;
  *  @描述：
  */
 
-public class SpiderView extends View {
+public class SpiderView
+        extends View
+{
 
     private static final int count = 6;
     private Context mContext;
-    private int mCenterX;
-    private int mCenterY;
-    private float angle = (float) (Math.PI * 2 / count);
-    private float radius = 200;                   //网格最大半径
-    private String[] titles = {"a","b","c","d","e","f"};
-    private double[] data = {100,60,60,60,100,50,10,20}; //各维度分值
-    private float maxValue = 100;             //数据最大值
+    private int     mCenterX;
+    private int     mCenterY;
+    private float    angle    = (float) (Math.PI * 2 / count);
+    private float    radius   = 200;                   //网格最大半径
+    private String[] titles   = {"a", "b", "c", "d", "e", "f"};
+    private Float[]  data     = {100f, 60f, 60f, 60f, 100f, 50f, 10f, 20f}; //各维度分值
+    private float    maxValue = 100;             //数据最大值
     private Paint mainPaint;                //雷达区画笔
     private Paint valuePaint;               //数据区画笔
+    private Paint mPointPaint;
     private Paint textPaint;                //文本画笔
-    private Path mLPath;
+    private Path  mLPath;
+    private Path  mLinePath;
 
     public SpiderView(Context context) {
         this(context , null);
@@ -54,6 +61,16 @@ public class SpiderView extends View {
          mainPaint.setStyle(Paint.Style.STROKE);
          mainPaint.setColor(Color.BLACK);
 
+         mLinePath = new Path();
+
+         valuePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+         valuePaint.setAlpha(255);
+         valuePaint.setColor(Color.BLUE);
+         valuePaint.setStyle(Paint.Style.STROKE);
+
+         mPointPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+         mPointPaint.setColor(Color.BLUE);
+         mPointPaint.setStyle(Paint.Style.FILL);
     }
 
     @Override
@@ -67,11 +84,11 @@ public class SpiderView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         drawPolygon(canvas);
-
+        drawLines(canvas);
+        drawPoints(canvas);
     }
 
-    private void drawPolygon(Canvas canvas) {
-        // 求出最小的边长
+    private void drawPolygon(Canvas canvas) {// 求出最小的边长
         float r = radius / (count - 1);
         for (int i = 1; i < count; i++) {
             float curR = r*i;
@@ -90,5 +107,33 @@ public class SpiderView extends View {
             canvas.drawPath(mLPath, mainPaint);
 
         }
+    }
+
+    private void drawLines(Canvas canvas) {
+        for (int i = 0; i < count; i++) {
+            mLinePath.reset();
+            mLinePath.moveTo(mCenterX , mCenterY);
+            float x = (float) (mCenterX + radius * Math.cos(angle * i));
+            float y = (float) (mCenterY + radius * Math.sin(angle * i));
+            mLinePath.lineTo(x, y);
+            canvas.drawPath(mLinePath , mainPaint);
+        }
+    }
+
+    private void drawPoints(Canvas canvas) {
+        mLinePath.reset();
+        for (int i = 0; i < count; i++) {
+            float percent = data[i] / maxValue;
+            float x = (float) (mCenterX + radius * Math.cos(angle * i) * percent);
+            float y = (float) (mCenterY + radius * Math.sin(angle * i) * percent);
+            if (i == 0) {
+                mLinePath.moveTo(x , mCenterY );
+            }else {
+                mLinePath.lineTo(x , y );
+            }
+            canvas.drawCircle(x , y  , TDevice.dip2px(mContext , 5), mPointPaint);
+
+        }
+        canvas.drawPath(mLinePath ,valuePaint);
     }
 }
