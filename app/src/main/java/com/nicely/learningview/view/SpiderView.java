@@ -131,9 +131,17 @@ public class SpiderView
             }else {
                 mLinePath.lineTo(x , y );
             }
-            canvas.drawCircle(x , y  , TDevice.dip2px(mContext , 5), mPointPaint);
+            canvas.drawCircle(x , y  , TDevice.dip2px(mContext , 3), mPointPaint);
 
         }
+        valuePaint.setAlpha(255);
+        valuePaint.setColor(Color.BLUE);
+        valuePaint.setStyle(Paint.Style.STROKE);
+
+        canvas.drawPath(mLinePath ,valuePaint);
+        valuePaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        valuePaint.setColor(Color.BLUE);
+        valuePaint.setAlpha(128);
         canvas.drawPath(mLinePath ,valuePaint);
     }
 }
