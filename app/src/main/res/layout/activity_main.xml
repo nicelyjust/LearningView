@@ -1,14 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<android.support.v4.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.nicely.learningview.MainActivity">
 
-    <com.nicely.learningview.view.PieView
-        android:id="@+id/pv_view"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-</FrameLayout>
+        <com.nicely.learningview.view.PieView
+            android:id="@+id/pv_view"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            app:dataTextSize="12dp"/>
+
+        <com.nicely.learningview.view.GapRectView
+            android:id="@+id/grv_view"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="20dp"
+            app:dataTextSize="12dp"/>
+    </LinearLayout>
+</android.support.v4.widget.NestedScrollView>
+

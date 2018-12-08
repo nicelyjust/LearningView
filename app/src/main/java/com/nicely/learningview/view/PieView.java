@@ -1,6 +1,7 @@
 package com.nicely.learningview.view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -8,6 +9,8 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
+
+import com.nicely.learningview.R;
 
 import java.text.DecimalFormat;
 import java.util.Random;
@@ -132,13 +135,13 @@ public class PieView extends View {
 
     public PieView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        /*TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.PieView);
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.PieView);
         centerTextSize = typedArray.getDimension(R.styleable.PieView_centerTextSize, centerTextSize);
         dataTextSize = typedArray.getDimension(R.styleable.PieView_dataTextSize, dataTextSize);
         circleWidth = typedArray.getDimension(R.styleable.PieView_circleWidth, circleWidth);
         centerTextColor = typedArray.getColor(R.styleable.PieView_centerTextColor, centerTextColor);
         dataTextColor = typedArray.getColor(R.styleable.PieView_dataTextColor, dataTextColor);
-        typedArray.recycle();*/
+        typedArray.recycle();
         init();
     }
 

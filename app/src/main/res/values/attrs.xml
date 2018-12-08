@@ -39,4 +39,14 @@
         <attr name="maxValue" format="float"/>
         <attr name="value" format="float"/>
     </declare-styleable>
+    <!--circleWidth = typedArray.getDimension(R.styleable.PieView_circleWidth, circleWidth);
+        centerTextColor = typedArray.getColor(R.styleable.PieView_centerTextColor, centerTextColor);
+        dataTextColor = typedArray.getColor(R.styleable.PieView_dataTextColor, dataTextColor);-->
+    <declare-styleable name="PieView">
+        <attr name="centerTextSize" format="dimension"/>
+        <attr name="dataTextSize" format="dimension"/>
+        <attr name="circleWidth" format="dimension"/>
+        <attr name="centerTextColor" format="color"/>
+        <attr name="dataTextColor" format="color"/>
+    </declare-styleable>
 </resources>
