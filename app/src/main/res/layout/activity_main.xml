@@ -26,6 +26,15 @@
             android:layout_marginStart="10dp"
             android:layout_marginTop="20dp"
             app:dataTextSize="12dp"/>
+        <com.nicely.learningview.view.RingGapView
+            android:layout_gravity="center_horizontal"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:is_show_select="true"
+            app:min_circle_radio="100"
+            app:ring_color_select="4"
+            app:ring_width="10"
+            app:select="7"/>
     </LinearLayout>
 </android.support.v4.widget.NestedScrollView>
 
