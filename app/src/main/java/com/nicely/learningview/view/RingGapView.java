@@ -34,8 +34,6 @@ public class RingGapView extends View {
     private float mRingWidth; //圆环的宽度
     private int mSelect;    //分成多少段
     private int mSelectAngle;   //每个圆环之间的间隔
-    private int mMinCircleColor;    //最里面圆的颜色
-    private int mMaxCircleColor;    //最外面圆的颜色
     private int mRingNormalColor;    //默认圆环的颜色
     private Paint mPaint;
     private int color[] = new int[3];   //渐变颜色
@@ -65,8 +63,6 @@ public class RingGapView extends View {
         mSelect = a.getInteger(R.styleable.RingGapView_select, 7);
         mSelectAngle = a.getInteger(R.styleable.RingGapView_selec_angle, 3);
 
-        mMinCircleColor = a.getColor(R.styleable.RingGapView_circle_color, context.getResources().getColor(android.R.color.white));
-        mMaxCircleColor = a.getColor(R.styleable.RingGapView_max_circle_color, 0xFFEAECF0);
         mRingNormalColor = a.getColor(R.styleable.RingGapView_ring_normal_color, 0xFFC5C7C7);
 
         isShowSelect = a.getBoolean(R.styleable.RingGapView_is_show_select, false);
@@ -80,12 +76,10 @@ public class RingGapView extends View {
         color[2] = Color.parseColor("#8EE484");
     }
 
-
     @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-        mViewWidth = getMeasuredWidth();
-        mViewHeight = getMeasuredHeight();
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        mViewWidth = w;
+        mViewHeight = h;
         mViewCenterX = mViewWidth / 2;
         mViewCenterY = mViewHeight / 2;
         mRectF = new RectF(mViewCenterX - mMinRadio - mRingWidth / 2, mViewCenterY - mMinRadio - mRingWidth / 2, mViewCenterX + mMinRadio + mRingWidth / 2, mViewCenterY + mMinRadio + mRingWidth / 2);
@@ -101,10 +95,6 @@ public class RingGapView extends View {
         if (isShowSelect && mSelectRing > mSelect) {
             return;
         }
-        mPaint.setColor(mMaxCircleColor);
-        canvas.drawCircle(mViewCenterX, mViewCenterY, mMinRadio + mRingWidth + 20, mPaint);
-        mPaint.setColor(mMinCircleColor);
-        canvas.drawCircle(mViewCenterX, mViewCenterY, mMinRadio, mPaint);
         //画默认圆环
         drawNormalRing(canvas);
         //画彩色圆环
@@ -137,7 +127,7 @@ public class RingGapView extends View {
         }
 
         ringColorPaint.setShader(null);
-        ringColorPaint.setColor(mMaxCircleColor);
+        ringColorPaint.setColor(Color.BLACK);
         for (int i = 0; i < mSelectRing; i++) {
             canvas.drawArc(mRectF, 270 + (i * mRingAngleWidth + (i) * mSelectAngle), mSelectAngle, false, ringColorPaint);
         }
@@ -157,7 +147,7 @@ public class RingGapView extends View {
         if (!isShowSelect) {
             return;
         }
-        ringNormalPaint.setColor(mMaxCircleColor);
+        ringNormalPaint.setColor(Color.BLACK);
         for (int i = 0; i < mSelect; i++) {
             canvas.drawArc(mRectF, 270 + (i * mRingAngleWidth + (i) * mSelectAngle), mSelectAngle, false, ringNormalPaint);
         }

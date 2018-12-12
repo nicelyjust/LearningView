@@ -32,9 +32,9 @@
             android:layout_height="100dp"
             app:is_show_select="true"
             app:min_circle_radio="100"
-            app:ring_color_select="4"
+            app:ring_color_select="3"
             app:ring_width="10"
-            app:select="7"/>
+            app:select="5"/>
     </LinearLayout>
 </android.support.v4.widget.NestedScrollView>
 

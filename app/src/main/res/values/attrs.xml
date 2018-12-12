@@ -67,9 +67,6 @@
         <!-- 圆的颜色 -->
         <attr name="circle_color" format="color"/>
 
-        <!-- 圆的颜色 -->
-        <attr name="max_circle_color" format="color"/>
-
         <!-- 圆环的默认颜色 -->
         <attr name="ring_normal_color" format="color"/>
 
