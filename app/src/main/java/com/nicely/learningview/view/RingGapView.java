@@ -5,13 +5,18 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.SweepGradient;
+import android.support.annotation.FloatRange;
+import android.support.annotation.IntRange;
+import android.support.annotation.Nullable;
+import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
 import com.nicely.learningview.R;
+import com.nicely.learningview.util.TDevice;
 
 
 /*
@@ -24,166 +29,106 @@ import com.nicely.learningview.R;
  */
 public class RingGapView extends View {
 
-    private final String TAG = "RingGapView";
+    private static final String TAG = "RingGapView";
+    private static final int DEFAULT_WIDTH = 400;
+    private static final int DEFAULT_HEIGHT = 30;
 
-    private int mViewWidth; //view的宽
-    private int mViewHeight;    //view的高
-    private int mViewCenterX;   //view宽的中心点
-    private int mViewCenterY;   //view高的中心点
-    private int mMinRadio; //最里面白色圆的半径
-    private float mRingWidth; //圆环的宽度
-    private int mSelect;    //分成多少段
-    private int mSelectAngle;   //每个圆环之间的间隔
-    private int mRingNormalColor;    //默认圆环的颜色
+    private int HEIGHT;
+    private int WIDTH;
+
+    private Paint mBgPaint;
+    /**
+     * 当前的进度值画笔
+     */
     private Paint mPaint;
-    private int color[] = new int[3];   //渐变颜色
-
-    private float mRingAngleWidth;  //每一段的角度
-
-    private RectF mRectF; //圆环的矩形区域
-    private int mSelectRing = 0;        //要显示几段彩色
-
-    private boolean isShowSelect = false;   //是否显示断
+    private TextPaint mTxtPaint;
+    /**
+     * 中间文本的大小
+     */
+    private Rect textBound = new Rect();
+    private int count = 5;
+    private int gapAngle = 6;
+    private RectF mRectF;
+    private float mAngle;
+    private float mCenterTxtSize;
+    private int mCenterTxtColor;
+    private float mCircleWidth;
+    private CharSequence mCenterText;
+    /**
+     * 最大值
+     */
+    private int mMaxValue;
+    /**
+     * 当前值
+     */
+    private float mValue;
 
     public RingGapView(Context context) {
         this(context, null);
     }
 
-    public RingGapView(Context context, AttributeSet attrs) {
+    public RingGapView(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public RingGapView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public void setValue(@IntRange(from = 0) int maxValue, @FloatRange(from = 0) float value, @Nullable String centerText) {
+        this.mMaxValue = maxValue;
+        this.mValue = value;
+        this.mCenterText = centerText;
+        invalidate();
+    }
+
+    public RingGapView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RingGapView);
-        mMinRadio = a.getInteger(R.styleable.RingGapView_min_circle_radio, 400);
+        TypedArray typedArray = getContext().obtainStyledAttributes(attrs ,R.styleable.RingGapView);
+        mCenterText = typedArray.getText(R.styleable.RingGapView_android_text);
+        mCenterTxtSize = typedArray.getDimension(R.styleable.RingGapView_android_textSize, TDevice.dip2px(context, 15));
+        mCenterTxtColor = typedArray.getColor(R.styleable.RingGapView_android_textColor, Color.WHITE);
+        mCircleWidth = typedArray.getDimension(R.styleable.RingGapView_c_Width, TDevice.dip2px(context, 4));
+        gapAngle = typedArray.getInt(R.styleable.RingGapView_gapAngle, 6);
+        mMaxValue = typedArray.getInt(R.styleable.RingGapView_ring_maxValue, 5);
+        mValue = typedArray.getFloat(R.styleable.RingGapView_ring_value, 3.2f);
+        typedArray.recycle();
+        initPaint();
+    }
 
-        mRingWidth = a.getFloat(R.styleable.RingGapView_ring_width, 40);
+    private void initPaint() {
+        mBgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mBgPaint.setColor(0xFF262930);
+        mBgPaint.setStrokeWidth(mCircleWidth);
+        mBgPaint.setStyle(Paint.Style.STROKE);
 
-        mSelect = a.getInteger(R.styleable.RingGapView_select, 7);
-        mSelectAngle = a.getInteger(R.styleable.RingGapView_selec_angle, 3);
+        mAngle = (360f - count * gapAngle) / count;
 
-        mRingNormalColor = a.getColor(R.styleable.RingGapView_ring_normal_color, 0xFFC5C7C7);
+        mTxtPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+        mTxtPaint.setColor(mCenterTxtColor);
+        mTxtPaint.setTextSize(mCenterTxtSize);
+        mTxtPaint.setStyle(Paint.Style.STROKE);
+    }
 
-        isShowSelect = a.getBoolean(R.styleable.RingGapView_is_show_select, false);
-        mSelectRing = a.getInt(R.styleable.RingGapView_ring_color_select, 0);
-        a.recycle();
-        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaint.setAntiAlias(true);
-        this.setWillNotDraw(false);
-        color[0] = Color.parseColor("#8EE484");
-        color[1] = Color.parseColor("#97C0EF");
-        color[2] = Color.parseColor("#8EE484");
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        mViewWidth = w;
-        mViewHeight = h;
-        mViewCenterX = mViewWidth / 2;
-        mViewCenterY = mViewHeight / 2;
-        mRectF = new RectF(mViewCenterX - mMinRadio - mRingWidth / 2, mViewCenterY - mMinRadio - mRingWidth / 2, mViewCenterX + mMinRadio + mRingWidth / 2, mViewCenterY + mMinRadio + mRingWidth / 2);
-        mRingAngleWidth = (360 - mSelect * mSelectAngle) / mSelect;
+        this.WIDTH = w;
+        this.HEIGHT = h;
+        mRectF = new RectF(mCircleWidth / 2, mCircleWidth / 2, WIDTH - mCircleWidth / 2, HEIGHT - mCircleWidth / 2);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        /**
-         * 显示彩色断大于总共的段数是错误的
-         */
-        if (isShowSelect && mSelectRing > mSelect) {
-            return;
+        canvas.drawColor(0xFF1F2123);
+        for (int i = 0; i < count; i++) {
+            float startAngle = 90 + gapAngle / 2 + i * mAngle + i * gapAngle;
+            Log.d(TAG, "onDraw: startAngle == " + startAngle);
+            Log.d(TAG, "onDraw: mAngle == " + mAngle);
+            canvas.drawArc(mRectF, startAngle, mAngle, false, mBgPaint);
         }
-        //画默认圆环
-        drawNormalRing(canvas);
-        //画彩色圆环
-        drawColorRing(canvas);
-
-
-    }
-
-    /**
-     * 画彩色圆环
-     *
-     * @param canvas
-     */
-    private void drawColorRing(Canvas canvas) {
-        Paint ringColorPaint = new Paint(mPaint);
-        ringColorPaint.setStyle(Paint.Style.STROKE);
-        ringColorPaint.setStrokeWidth(mRingWidth);
-        ringColorPaint.setShader(new SweepGradient(mViewCenterX, mViewCenterX, color, null));
-
-        if (!isShowSelect) {
-            canvas.drawArc(mRectF, 270, mSelectRing, false, ringColorPaint);
-            return;
-        }
-
-        if (mSelect == mSelectRing && mSelectRing != 0 && mSelect != 0) {
-            canvas.drawArc(mRectF, 270, 360, false, ringColorPaint);
-        } else {
-            Log.d(TAG, (mRingAngleWidth * mSelectRing + mSelectAngle + mSelectRing) + "");
-            canvas.drawArc(mRectF, 270, mRingAngleWidth * mSelectRing + mSelectAngle * mSelectRing, false, ringColorPaint);
-        }
-
-        ringColorPaint.setShader(null);
-        ringColorPaint.setColor(Color.BLACK);
-        for (int i = 0; i < mSelectRing; i++) {
-            canvas.drawArc(mRectF, 270 + (i * mRingAngleWidth + (i) * mSelectAngle), mSelectAngle, false, ringColorPaint);
-        }
-    }
-
-    /**
-     * 画默认圆环
-     *
-     * @param canvas
-     */
-    private void drawNormalRing(Canvas canvas) {
-        Paint ringNormalPaint = new Paint(mPaint);
-        ringNormalPaint.setStyle(Paint.Style.STROKE);
-        ringNormalPaint.setStrokeWidth(mRingWidth);
-        ringNormalPaint.setColor(mRingNormalColor);
-        canvas.drawArc(mRectF, 270, 360, false, ringNormalPaint);
-        if (!isShowSelect) {
-            return;
-        }
-        ringNormalPaint.setColor(Color.BLACK);
-        for (int i = 0; i < mSelect; i++) {
-            canvas.drawArc(mRectF, 270 + (i * mRingAngleWidth + (i) * mSelectAngle), mSelectAngle, false, ringNormalPaint);
-        }
-    }
-
-    /**
-     * 显示几段
-     *
-     * @param i
-     */
-    public void setSelect(int i) {
-        this.mSelectRing = i;
-        this.invalidate();
-    }
-
-    /**
-     * 断的总数
-     *
-     * @param i
-     */
-    public void setSelectCount(int i) {
-        this.mSelect = i;
-    }
-
-
-    /**
-     * 是否显示断
-     *
-     * @param b
-     */
-    public void setShowSelect(boolean b) {
-        this.isShowSelect = b;
-    }
-
-
-    public void setColor(int[] color) {
-        this.color = color;
+        Log.d(TAG, "onDraw: " + mCenterText);
+        mTxtPaint.getTextBounds(mCenterText.toString(), 0, mCenterText.length(), textBound);
+        canvas.drawText("hello", WIDTH / 2 - textBound.width() / 2, HEIGHT / 2 + textBound.height() / 2, mTxtPaint);
     }
 }
