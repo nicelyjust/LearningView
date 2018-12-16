@@ -87,7 +87,7 @@ public class RingGapView extends View {
         mCircleWidth = typedArray.getDimension(R.styleable.RingGapView_c_Width, TDevice.dip2px(context, 4));
         gapAngle = typedArray.getInt(R.styleable.RingGapView_gapAngle, 6);
         mMaxValue = typedArray.getInt(R.styleable.RingGapView_ring_maxValue, 5);
-        mValue = typedArray.getFloat(R.styleable.RingGapView_ring_value, 3f);
+        mValue = typedArray.getFloat(R.styleable.RingGapView_ring_value, 5f);
         typedArray.recycle();
         initPaint();
     }
@@ -106,6 +106,7 @@ public class RingGapView extends View {
         mAngle = (360f - count * gapAngle) / count;
 
         mTxtPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+        mTxtPaint.setTextAlign(Paint.Align.CENTER);
         mTxtPaint.setColor(mCenterTxtColor);
         mTxtPaint.setTextSize(mCenterTxtSize);
         mTxtPaint.setStyle(Paint.Style.STROKE);
@@ -127,8 +128,8 @@ public class RingGapView extends View {
     protected void onDraw(Canvas canvas) {
         canvas.drawColor(0xFF1F2123);
         canvas.drawCircle(WIDTH / 2f, HEIGHT / 2f, WIDTH / 2f - mCircleWidth, mBgPaint);
-        canvas.drawArc(mRectF, 90, mValue / mMaxValue * (360 + 5 * gapAngle), false, mPaint);
-        mTxtPaint.getTextBounds(mCenterText.toString(), 0, mCenterText.length(), textBound);
+        canvas.drawArc(mRectF, 90, mValue / mMaxValue * 360, false, mPaint);
+
         mBgPaint.setColor(0xFF1E2022);
         mBgPaint.setStrokeWidth(mCircleWidth +1);
         Log.d(TAG, "onDraw: " + mCenterText);
@@ -138,6 +139,7 @@ public class RingGapView extends View {
             Log.d(TAG, "onDraw: mAngle == " + mAngle);
             canvas.drawArc(mRectF, startAngle, gapAngle, false, mBgPaint);
         }
-        canvas.drawText("hello", WIDTH / 2f - textBound.width() / 2f - 2, HEIGHT / 2f + textBound.height() / 2f, mTxtPaint);
+        mTxtPaint.getTextBounds(mCenterText.toString(), 0, mCenterText.length(), textBound);
+        canvas.drawText("hello", WIDTH / 2f , HEIGHT / 2f + textBound.height() / 2f, mTxtPaint);
     }
 }
