@@ -80,14 +80,14 @@ public class RingGapView extends View {
 
     public RingGapView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        TypedArray typedArray = getContext().obtainStyledAttributes(attrs ,R.styleable.RingGapView);
+        TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.RingGapView);
         mCenterText = typedArray.getText(R.styleable.RingGapView_android_text);
         mCenterTxtSize = typedArray.getDimension(R.styleable.RingGapView_android_textSize, TDevice.dip2px(context, 15));
         mCenterTxtColor = typedArray.getColor(R.styleable.RingGapView_android_textColor, Color.WHITE);
         mCircleWidth = typedArray.getDimension(R.styleable.RingGapView_c_Width, TDevice.dip2px(context, 4));
         gapAngle = typedArray.getInt(R.styleable.RingGapView_gapAngle, 6);
         mMaxValue = typedArray.getInt(R.styleable.RingGapView_ring_maxValue, 5);
-        mValue = typedArray.getFloat(R.styleable.RingGapView_ring_value, 3.2f);
+        mValue = typedArray.getFloat(R.styleable.RingGapView_ring_value, 3f);
         typedArray.recycle();
         initPaint();
     }
@@ -97,6 +97,11 @@ public class RingGapView extends View {
         mBgPaint.setColor(0xFF262930);
         mBgPaint.setStrokeWidth(mCircleWidth);
         mBgPaint.setStyle(Paint.Style.STROKE);
+
+        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaint.setColor(0xFFB2B3B5);
+        mPaint.setStrokeWidth(mCircleWidth);
+        mPaint.setStyle(Paint.Style.STROKE);
 
         mAngle = (360f - count * gapAngle) / count;
 
@@ -115,20 +120,24 @@ public class RingGapView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         this.WIDTH = w;
         this.HEIGHT = h;
-        mRectF = new RectF(mCircleWidth / 2, mCircleWidth / 2, WIDTH - mCircleWidth / 2, HEIGHT - mCircleWidth / 2);
+        mRectF = new RectF(mCircleWidth, mCircleWidth, WIDTH - mCircleWidth, HEIGHT - mCircleWidth);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawColor(0xFF1F2123);
+        canvas.drawCircle(WIDTH / 2f, HEIGHT / 2f, WIDTH / 2f - mCircleWidth, mBgPaint);
+        canvas.drawArc(mRectF, 90, mValue / mMaxValue * (360 + 5 * gapAngle), false, mPaint);
+        mTxtPaint.getTextBounds(mCenterText.toString(), 0, mCenterText.length(), textBound);
+        mBgPaint.setColor(0xFF1E2022);
+        mBgPaint.setStrokeWidth(mCircleWidth +1);
+        Log.d(TAG, "onDraw: " + mCenterText);
         for (int i = 0; i < count; i++) {
-            float startAngle = 90 + gapAngle / 2 + i * mAngle + i * gapAngle;
+            float startAngle = 90 - gapAngle/2 +  gapAngle*i + mAngle*i;
             Log.d(TAG, "onDraw: startAngle == " + startAngle);
             Log.d(TAG, "onDraw: mAngle == " + mAngle);
-            canvas.drawArc(mRectF, startAngle, mAngle, false, mBgPaint);
+            canvas.drawArc(mRectF, startAngle, gapAngle, false, mBgPaint);
         }
-        Log.d(TAG, "onDraw: " + mCenterText);
-        mTxtPaint.getTextBounds(mCenterText.toString(), 0, mCenterText.length(), textBound);
-        canvas.drawText("hello", WIDTH / 2 - textBound.width() / 2, HEIGHT / 2 + textBound.height() / 2, mTxtPaint);
+        canvas.drawText("hello", WIDTH / 2f - textBound.width() / 2f - 2, HEIGHT / 2f + textBound.height() / 2f, mTxtPaint);
     }
 }
