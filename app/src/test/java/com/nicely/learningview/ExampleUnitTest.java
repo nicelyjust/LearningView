@@ -13,5 +13,12 @@ public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() throws Exception {
         assertEquals(4, 2 + 2);
+        StudentA a = new StudentA();
+        StudentB b = new StudentB();
+        Teacher teacher = new Teacher();
+        teacher.subscribe(a);
+        teacher.subscribe(b);
+        teacher.update();
+
     }
 }
